@@ -6,6 +6,11 @@ use v6;
 enum NYI_MoveMethod <FromStart FromCurrent FromEnd>;
 
 sub MAIN(Str $filename, Str :o(:output($outdir)) = "./") {
+    gar_extract($filename, $outdir);
+    say "Done!";
+}
+
+sub gar_extract($filename, $outdir) {
     # the :nl part lets us read null-terminated strings easily, with .get .
     my $archive = open($filename, :bin, :nl("\0"));
 
@@ -121,8 +126,6 @@ sub MAIN(Str $filename, Str :o(:output($outdir)) = "./") {
         $curfile.write($curdata);
         $curfile.close; 
     }
-
-    say "Done!";
 }
 
 sub bytes2num($bytes) { :16($bytes.list».fmt("%02X").reverse.join) }
