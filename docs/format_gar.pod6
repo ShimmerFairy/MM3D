@@ -1,0 +1,110 @@
+=begin pod
+
+=TITLE Gaiden Archive (.gar) File Format
+
+=AUTHOR Faye Niemeyer (ShimmerFairy)
+
+=SYNOPSIS
+The Gaiden Archive format is used by Majora's Mask 3D to store multiple files in
+one, similar to the tarball format.
+
+
+
+
+=head1 General Layout
+
+The archive is organized into these sections:
+
+=item Header
+=item File Types Info
+=item File Name Offsets
+=item File Names
+=item File Offsets
+=item Files
+
+
+
+
+=head1 Header
+
+Visual Layout:
+
+    0  1  2  3     4  5  6  7     8  9  A  B     C  D  E  F
+    G  A  R  02    as as as as    tt 00 nn 00    20 00 00 00
+    np np np np    fp fp fp fp    j  e  n  k     i  n  s  00
+
+=item B<as>: Archive size. Size of the .gar file.
+
+=item B<tt>: Number of file types in the archive. May be 2 bytes.
+
+=item B<nn>: Number of files in the archive. May be 2 bytes.
+
+=item B<np>: Pointer to the filename offsets.
+
+=item B<fp>: Pointer to the file offsets.
+
+
+
+
+=head1 File Types Info
+
+The file types info is a list of C<0x10>-byte entries. The number of entries is
+determined by byte C<0x08> in the header.
+
+Entry format:
+
+    NN NN NN NN  LL LL LL LL  TT TT TT TT  ?? ?? ?? ??
+
+=item B<NN>: Number of files of this file type.
+
+=item B<LL>: Pointer to list of files of this file type (C<0xFFFFFFFF> = no list)
+
+=item B<TT>: Pointer to null-terminated name of file type.
+
+=item B<??>: Unknown. Always C<0xFFFFFFFF> ?
+
+The list of files is a series of four-byte entries referring to a file by
+number, in order of appearance in the archive (zero-indexed).
+
+
+
+
+=head1 File Name Offsets
+
+A collection of pointers to file names. Each file's entry is C<0x0C> bytes long.
+
+Entry format:
+
+    ?? ?? ?? ??  SN SN SN SN  FN FN FN FN
+
+=item B<??>: Unknown
+
+=item B<SN>: Pointer to "stripped" file name (essentially, basename without
+extension)
+
+=item B<FN>: Pointer to "full" file name (with extension and directories)
+
+
+
+
+=head1 File Names
+
+A collection of null-terminated file names, both "stripped" and "full" (see
+previous section).
+
+
+
+
+=head1 File Offsets
+
+A list of four byte offsets within the archive, pointing to the files contained
+within. The number of entries is determined by byte C<0x0A> in the header.
+
+
+
+
+=head1 Files
+
+All the files contained in the archive follow the above information.
+
+=end pod
