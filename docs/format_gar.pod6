@@ -17,7 +17,7 @@ The archive is organized into these sections:
 
 =item Header
 =item File Types Info
-=item File Name Offsets
+=item File Size & Name Pointers
 =item File Names
 =item File Offsets
 =item Files
@@ -69,15 +69,16 @@ number, in order of appearance in the archive (zero-indexed).
 
 
 
-=head1 File Name Offsets
+=head1 File Name Pointers & Size
 
-A collection of pointers to file names. Each file's entry is C<0x0C> bytes long.
+A collection of pointers to file names, as well as file sizes. Each file's entry
+is C<0x0C> bytes long.
 
 Entry format:
 
-    ?? ?? ?? ??  SN SN SN SN  FN FN FN FN
+    FS FS FS FS  SN SN SN SN  FN FN FN FN
 
-=item B<??>: Unknown
+=item B<FS>: Size of file
 
 =item B<SN>: Pointer to "stripped" file name (essentially, basename without
 extension)
