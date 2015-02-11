@@ -6,9 +6,70 @@ use v6;
 enum NYI_MoveMethod <FromStart FromCurrent FromEnd>;
 
 sub MAIN(Str $filename, Str :o(:output($outdir)) = "./") {
-    gar_extract($filename, $outdir);
+    my $archive = open($filename, :bin, :nl("\0"));
+
+    given $archive.read(4).decode -> $magic {
+        if $magic eq "GAR\x02" {
+            gar_extract($filename, $outdir);
+        } elsif $magic eq "LzS\x01" {
+            lzs_decompress($filename);
+        } else {
+            $archive.close;
+            die "Not a valid gaiden archive. Exiting.";
+        }
+    }
     say "Done!";
 }
+
+sub lzs_decompress($filename) {
+    # get file
+    my $compfile = open($filename, :bin);
+    $compfile.seek(0x10, FromStart);
+    my @compdata = $compfile.read($compfile.s - 0x10).list;
+    $compfile.close;
+
+    # decompress
+    my @BUFFER = 0 xx 4096;
+    my @output;
+    my $flags8;
+    my $writeidx = 0xFEE;
+    my $readidx;
+    my $dataidx = 0;
+
+    while $dataidx < +@compdata {
+        print "\r\e[K$dataidx/{+@compdata}";
+        $flags8 = @compdata[$dataidx];
+        $dataidx++;
+
+        for ^8 {
+            if $flags8 +& 1 { # literal byte
+                @output.push(@compdata[$dataidx]);
+                @BUFFER[$writeidx] = @compdata[$dataidx];
+                $writeidx++; $writeidx %= 4096;
+                $dataidx++;
+            } else { # run data
+                $readidx = @compdata[$dataidx];
+                $dataidx++;
+                $readidx +|= (@compdata[$dataidx] +& 0xF0) +< 4;
+                for ^((@compdata[$dataidx] +& 0x0F) + 3) {
+                    @output.push(@BUFFER[$readidx]);
+                    @BUFFER[$writeidx] = @BUFFER[$readidx];
+                    $readidx++;  $readidx  %= 4096;
+                    $writeidx++; $writeidx %= 4096;
+                }
+                $dataidx++;
+            }
+
+            $flags8 +>= 1;
+            last if $dataidx >= +@compdata;
+        }
+    }
+
+    say "\r\e[K";
+
+    say Buf.new(@output[^0x30]);
+}
+
 
 sub gar_extract($filename, $outdir) {
     # the :nl part lets us read null-terminated strings easily, with .get .
