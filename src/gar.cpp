@@ -72,18 +72,10 @@ void gar_ext(std::vector<uint8_t> arcdata, std::string outdir) {
     }
 
     // file extraction time
-    boost::filesystem::path outpath;
     std::string curoutname;
-    std::ofstream outfile;
-
-    outpath = outdir;
-    outpath = boost::filesystem::absolute(outpath);
 
     for (auto & i : FILEIDX) {
         curoutname = i.basename + "." + i.filetype;
-
-        outfile.open((outpath / curoutname).string(), std::ios::binary);
-        outfile.write((char*)(arcdata.data() + i.fileat), i.filesize);
-        outfile.close();
+        writeFile(outdir, curoutname, (char*)(arcdata.data() + i.fileat), i.filesize);
     }
 }
