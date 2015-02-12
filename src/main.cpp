@@ -28,7 +28,7 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
-    int arcsize = archive.tellg();
+    const int arcsize = archive.tellg();
     archive.seekg(0);
 
     // see if it's a gar or lzs file
