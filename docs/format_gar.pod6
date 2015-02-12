@@ -30,14 +30,16 @@ The archive is organized into these sections:
 Visual Layout:
 
     0  1  2  3     4  5  6  7     8  9  A  B     C  D  E  F
-    G  A  R  02    as as as as    tt 00 nn 00    20 00 00 00
+    G  A  R  02    as as as as    tt tt nn nn    hh hh hh hh
     np np np np    fp fp fp fp    j  e  n  k     i  n  s  00
 
 =item B<as>: Archive size. Size of the .gar file.
 
-=item B<tt>: Number of file types in the archive. May be 2 bytes.
+=item B<tt>: Number of file types in the archive.
 
-=item B<nn>: Number of files in the archive. May be 2 bytes.
+=item B<nn>: Number of files in the archive.
+
+=item B<hh>: Size of header, currently always C<0x20> (C<20 00 00 00> in file).
 
 =item B<np>: Pointer to the filename offsets.
 
