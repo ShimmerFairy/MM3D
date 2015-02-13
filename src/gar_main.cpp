@@ -1,4 +1,4 @@
-// main.cpp --- where the program starts
+// gar_main.cpp --- where the 'gar' program starts
 
 #include <iostream>
 #include <fstream>
@@ -46,10 +46,21 @@ int main(int argc, char ** argv) {
     if (magic == std::string("GAR\x02")) {
         gar_ext(arcdata, outdir);
     } else if (magic == std::string("LzS\x01")) {
+        // a bit of trickery; thanks to the use of LZSS, the Gaiden Archive
+        // magic word appears in its entirety at 0x11 in the file
+        archive.seekg(0x11);
+        archive.read(magic, 4);
+        if (magic != std::string("GAR\x02")) {
+            std::cerr << "Not a Gaiden Archive. Exiting.\n";
+            return 1;
+        }
+
+        // compressed gaiden archive; let's decompress and extract
         arcdata = lzs_dec(arcdata);
         gar_ext(arcdata, outdir);
     } else {
-        std::cout << ":( " << magic << " :(\n";
+        std::cerr << "Not a Gaiden Archive. Exiting.\n";
+        return 1;
     }
 
     return 0;
