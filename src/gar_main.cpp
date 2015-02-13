@@ -60,8 +60,11 @@ int main(int argc, char ** argv) {
         gar_ext(arcdata, outdir);
     } else {
         std::cerr << "Not a Gaiden Archive. Exiting.\n";
+        archive.close();
         return 1;
     }
+
+    archive.close();
 
     return 0;
 }

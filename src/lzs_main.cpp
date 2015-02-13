@@ -41,6 +41,7 @@ int main(int argc, char ** argv) {
 
     infile.seekg(0);
     infile.read(filerawdata, filesize);
+    infile.close();
     filedata = std::vector<uint8_t>(filerawdata, filerawdata + filesize);
 
     if (magic == std::string("LzS\x01")) {
