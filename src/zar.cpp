@@ -3,6 +3,7 @@
 #include <boost/filesystem.hpp>
 
 #include <fstream>
+#include <algorithm>
 
 #include "zar.hpp"
 #include "util.hpp"
@@ -55,15 +56,19 @@ void zar_ext(std::vector<uint8_t> arcdata, std::string outdir) {
     // get file names and sizes
     entryat = fnamepoint;
 
-    boost::filesystem::path temppath;
+    std::string temppath;
 
     for (uint16_t i = 0; i < numfiles; i++) {
         // file size
         FILEIDX.at(i).filesize = vec2int32(arcdata, entryat);
 
         // file name
-        temppath = std::string((char*)(arcdata.data() + vec2int32(arcdata, entryat + 4)));
-        FILEIDX.at(i).basename = temppath.stem().string();
+        temppath = std::string((char*)arcdata.data() + vec2int32(arcdata, entryat + 4));
+
+        // you'd think boost could handle this, but nooooo
+        std::replace(temppath.begin(), temppath.end(), '\\', '/');
+
+        FILEIDX.at(i).basename = boost::filesystem::path(temppath).stem().string();
 
         // next entry
         entryat += 0x8;
